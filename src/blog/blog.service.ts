@@ -24,7 +24,7 @@ export class BlogService {
     }
 
     async getBlogPosts() {
-        const blogs = await this.blogModel.find().populate('category');
+        const blogs = await this.blogModel.find().populate('category').populate('publisher');
 
         return blogs.map(blog => ({
             id: blog.id,
@@ -36,7 +36,11 @@ export class BlogService {
     }
 
     async getBlogDetails(blogId: string) {
-        const blog = await this.blogModel.findById(blogId).populate('category');
+        const blog = await this.blogModel.findById(blogId).populate('category').populate('publisher');
+
+        if (!blog) {
+            throw new NotFoundException('Could not find blog details');
+        }
 
         return {
             id: blog.id,
