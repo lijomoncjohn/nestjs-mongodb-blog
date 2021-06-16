@@ -25,25 +25,26 @@ export class BlogController {
     }
 
     @Get(':id')
-    getBlogDetails(@Param('id') blogId: string) {
-        return this.blogService.getBlogDetails(blogId)
+    async getBlogDetails(@Param('id') blogId: string) {
+        const blogDetails = await this.blogService.getBlogDetails(blogId)
+        return blogDetails;
     }
 
     @Put(':id')
-    updateBlog(
+    async updateBlog(
         @Param('id') blogId: string,
-        @Param('title') blogTitle: string,
-        @Param('description') blogDescription: string,
-        @Param('category') blogCategory: string
+        @Body('title') blogTitle: string,
+        @Body('description') blogDescription: string,
+        @Body('category') blogCategory: string
     ) {
-        this.blogService.updateBlog(blogId, blogTitle, blogDescription, blogCategory);
+        await this.blogService.updateBlog(blogId, blogTitle, blogDescription, blogCategory);
 
         return null
     }
 
     @Delete(':id')
-    removeBlog(@Param('id') blogId: string) {
-        this.blogService.removeBlog(blogId)
+    async removeBlog(@Param('id') blogId: string) {
+        await this.blogService.removeBlog(blogId)
 
         return null
     }

@@ -24,7 +24,7 @@ export class BlogService {
     }
 
     async getBlogPosts() {
-        const blogs = await this.blogModel.find().exec();
+        const blogs = await this.blogModel.find().populate('category');
 
         return blogs.map(blog => ({
             id: blog.id,
@@ -35,34 +35,58 @@ export class BlogService {
         }));
     }
 
-    getBlogDetails(blogId: string) {
-        const blog = this.blogs.find(blog => blog.id === blogId);
+    async getBlogDetails(blogId: string) {
+        const blog = await this.blogModel.findById(blogId).populate('category');
+
+        return {
+            id: blog.id,
+            title: blog.title,
+            description: blog.description,
+            category: blog.category,
+            publisher: blog.publisher,
+        }
+    }
+
+    async updateBlog(blogId: string, title: string, description: string, category: string) {
+        console.log(title, description);
+
+        const updateBlog = await this.findBlog(blogId);
+
+        if (title) {
+            updateBlog.title = title
+            console.log(updateBlog);
+        }
+
+        if (description) {
+            updateBlog.description = title
+        }
+        if (category) {
+            updateBlog.category = title
+        }
+
+        updateBlog.save();
+    }
+
+    async removeBlog(blogId: string) {
+        const result = await this.blogModel.deleteOne({ _id: blogId }).exec()
+        if (result.n === 0) {
+            throw new NotFoundException('Could not find blog.');
+        }
+    }
+
+    private async findBlog(id: string): Promise<Blog> {
+        let blog;
+        try {
+            blog = await this.blogModel.findById(id).exec();
+        } catch (error) {
+            throw new NotFoundException('Could not find blog.');
+        }
 
         if (!blog) {
             throw new NotFoundException('Could not find blog details');
         }
 
-        return { ...blog }
-    }
-
-    updateBlog(blogId: string, title: string, description: string, category: string) {
-        console.log();
-    }
-
-    removeBlog(blogId: string) {
-        const index = this.findBlog(blogId)[1];
-        this.blogs.splice(index, 1)
-    }
-
-    private findBlog(id: string): [Blog, number] {
-        const blogIndex = this.blogs.findIndex(blog => blog.id === id);
-        const blog = this.blogs[blogIndex]
-
-        if (!blog) {
-            throw new NotFoundException('Could not find blog details');
-        }
-
-        return [blog, blogIndex]
+        return blog;
     }
 
 }
