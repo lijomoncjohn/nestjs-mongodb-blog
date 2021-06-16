@@ -6,14 +6,17 @@ export class CategoryController {
     constructor(private readonly categoryService: CategoryService) { }
 
     @Post()
-    addCategory(@Body('name') categoryName: string): any {
-        const id = this.categoryService.insertCategory(categoryName);
+    async addCategory(@Body('name') categoryName: string) {
+        const generatedId = await this.categoryService.insertCategory(categoryName);
+        console.log(generatedId);
 
-        return { id: id }
+        return { id: generatedId }
     }
 
     @Get()
-    getAllCategories() {
-        return this.categoryService.getCategories();
+    async getAllCategories() {
+        const categories = await this.categoryService.getCategories();
+
+        return categories;
     }
 }
